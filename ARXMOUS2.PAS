@@ -1,4 +1,4 @@
-Program Arxmouse;
+Program Arxmouse2;
 
 {Rune detector program, similarly to what you have in Arx Fatalis}
 
