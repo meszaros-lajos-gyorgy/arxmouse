@@ -17,6 +17,7 @@ var
   bekapcs: boolean;
   magic: array[1..6] of string;
   i: byte;
+  prevMagicnum: byte;
   magicnum: byte;
 
 procedure showMouseCursor; assembler;
@@ -122,6 +123,7 @@ begin
     magic[i] := '';
 
   magicnum := 0;
+  prevMagicnum := -1;
 
   repeat
     getMouseCoordinates;
@@ -169,10 +171,14 @@ begin
     end
     else if mouse = 0 then karakter := '';
 
-    gotoxy(1, 1);
-    clreol;
-    for i := 1 to magicnum do
-      write(magic[i], ' ');
+    if (prevMagicnum <> magicnum) then begin
+      gotoxy(1, 1);
+      clreol;
+      for i := 1 to magicnum do
+        write(magic[i], ' ');
+    end;
+
+    prevMagicnum = magicnum;
 
   until keypressed;
   hideMouseCursor; 
