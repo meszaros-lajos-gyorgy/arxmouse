@@ -13,7 +13,7 @@ const directions: string[9] = '012345678';
 var
   vonal: array[1..3] of tkoord;
   mouse: byte;
-  karakter: string[7]; {rune}
+  rune: string[7];
   bekapcs: boolean;
   magic: array[1..6] of string;
   i: byte;
@@ -116,7 +116,7 @@ begin
   showMouseCursor;
 
   mouse := 0;
-  karakter := '0';
+  rune := '0';
   bekapcs := true;
 
   for i := 1 to 6 do
@@ -129,39 +129,39 @@ begin
     getMouseCoordinates;
     if mouse = 2 then begin
       if (vonal[2].x <> vonal[3].x) and (vonal[2].y <> vonal[3].y) then
-        karakter := karakter + directions[dxdy+1];
+        rune := rune + directions[dxdy+1];
       
       if (magicnum < 6) then
         inc(magicnum);
 
-      if      karakter = '3'      then magic[magicnum] := 'AAM'
-      else if karakter = '7'      then magic[magicnum] := 'NHI'
-      else if karakter = '1'      then magic[magicnum] := 'MEGA'
-      else if karakter = '531'    then magic[magicnum] := 'YOK'
-      else if karakter = '353'    then magic[magicnum] := 'TAAR'
-      else if karakter = '76543'  then magic[magicnum] := 'KAOM'
-      else if karakter = '31'     then magic[magicnum] := 'VITAE'
-      else if karakter = '46'     then magic[magicnum] := 'VISTA'
-      else if karakter = '141'    then magic[magicnum] := 'STREGNUM'
-      else if karakter = '35'     then magic[magicnum] := 'MORTE'
-      else if karakter = '3571'   then magic[magicnum] := 'COSUM'
-      else if karakter = '35753'  then magic[magicnum] := 'COMMUNICATUM'
-      else if karakter = '363'    then magic[magicnum] := 'MOVIS'
-      else if karakter = '135313' then magic[magicnum] := 'TEMPUS'
-      else if karakter = '24'     then magic[magicnum] := 'FOLGORA'
-      else if karakter = '7531'   then magic[magicnum] := 'SPACIUM'
-      else if karakter = '253'    then magic[magicnum] := 'TERA'
-      else if karakter = '413'    then magic[magicnum] := 'CETRIUS'
-      else if karakter = '5'      then magic[magicnum] := 'RHAA'
-      else if karakter = '135'    then magic[magicnum] := 'FRIDD'
+      if      rune = '3'      then magic[magicnum] := 'AAM'
+      else if rune = '7'      then magic[magicnum] := 'NHI'
+      else if rune = '1'      then magic[magicnum] := 'MEGA'
+      else if rune = '531'    then magic[magicnum] := 'YOK'
+      else if rune = '353'    then magic[magicnum] := 'TAAR'
+      else if rune = '76543'  then magic[magicnum] := 'KAOM'
+      else if rune = '31'     then magic[magicnum] := 'VITAE'
+      else if rune = '46'     then magic[magicnum] := 'VISTA'
+      else if rune = '141'    then magic[magicnum] := 'STREGNUM'
+      else if rune = '35'     then magic[magicnum] := 'MORTE'
+      else if rune = '3571'   then magic[magicnum] := 'COSUM'
+      else if rune = '35753'  then magic[magicnum] := 'COMMUNICATUM'
+      else if rune = '363'    then magic[magicnum] := 'MOVIS'
+      else if rune = '135313' then magic[magicnum] := 'TEMPUS'
+      else if rune = '24'     then magic[magicnum] := 'FOLGORA'
+      else if rune = '7531'   then magic[magicnum] := 'SPACIUM'
+      else if rune = '253'    then magic[magicnum] := 'TERA'
+      else if rune = '413'    then magic[magicnum] := 'CETRIUS'
+      else if rune = '5'      then magic[magicnum] := 'RHAA'
+      else if rune = '135'    then magic[magicnum] := 'FRIDD'
       else dec(magicnum);
     end
     else if mouse = 3 then begin
       if (vonal[2].x = vonal[3].x) and (vonal[2].y = vonal[3].y)
       and (vonal[1].x <> vonal[3].x) and (vonal[1].y <> vonal[3].y) then begin
         if bekapcs then begin
-          if (karakter[length(karakter)] <> directions[dxdy + 1]) then
-            karakter := karakter + directions[dxdy + 1];
+          if (rune[length(rune)] <> directions[dxdy + 1]) then
+            rune := rune + directions[dxdy + 1];
           bekapcs := false;
           vonal[1].x := vonal[2].x;
           vonal[1].y := vonal[2].y;
@@ -169,7 +169,7 @@ begin
       end
       else bekapcs := true;
     end
-    else if mouse = 0 then karakter := '';
+    else if mouse = 0 then rune := '';
 
     if (prevMagicnum <> magicnum) then begin
       gotoxy(1, 1);
