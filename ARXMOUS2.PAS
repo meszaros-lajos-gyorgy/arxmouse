@@ -4,18 +4,19 @@ Program Arxmouse2;
 
 uses crt;
 
-type tkoord = record
+type TCoord = record
   x, y: integer;
 end;
 
-const directions: string[9] = '012345678';
+const DIRECTIONS: string[9] = '012345678';
+const MAX_MAGIC_NUM: byte = 6
 
 var
-  vonal: array[1..3] of tkoord;
+  mouseCoordsBuffer: array[1..3] of TCoord;
   mouse: byte;
   rune: string[7];
-  bekapcs: boolean;
-  magic: array[1..6] of string;
+  directionReadyToBeRecorded: boolean;
+  magic: array[1..MAX_MAGIC_NUM] of string;
   i: byte;
   prevMagicnum: byte;
   magicnum: byte;
@@ -47,12 +48,12 @@ end;
 
 procedure getMouseCoordinates; assembler;
 asm
-  mov si, offset vonal
+  mov si, offset mouseCoordsBuffer
   mov al, mouse
   shl al, 1
   and al, 00000011b
   mov mouse, al
-  mov ax, 5
+  mov ax, 5 {get mouse button press information}
   int 33h
   and al, 00000001b
   add mouse, al
@@ -62,14 +63,14 @@ asm
   jz  @3
   cmp mouse, 1
   jnz @vege
-  mov ax, 3
+  mov ax, 3 {get mouse position and button status}
   int 33h
   shr cx, 1
   mov [si], cx
   mov [si + 2], dx
   jmp @vege
 @2:
-  mov ax, 3
+  mov ax, 3 {get mouse position and button status}
   int 33h
   shr cx, 1
   mov [si + 4], cx
@@ -80,7 +81,7 @@ asm
   mov [si + 4], ax
   mov ax, [si + 10]
   mov [si + 6], ax
-  mov ax, 3
+  mov ax, 3 {get mouse position and button status}
   int 33h
   shr cx, 1
   mov [si + 8], cx
@@ -91,8 +92,9 @@ end;
 function getDirectionIndex: byte;
 var dx, dy: single;
 begin
-  dx := vonal[2].x - vonal[1].x;
-  dy := vonal[2].y - vonal[1].y;
+  dx := mouseCoordsBuffer[2].x - mouseCoordsBuffer[1].x;
+  dy := mouseCoordsBuffer[2].y - mouseCoordsBuffer[1].y;
+
   if      (dx = 0)     and (dy = 0)                      then getDirectionIndex := 0
   else if (dx < -dy/2) and (dx > dy/2)  and (dy < 0)     then getDirectionIndex := 1
   else if (dx > -dy/2) and (dy < -dx/2)                  then getDirectionIndex := 2
@@ -102,12 +104,15 @@ begin
   else if (dx < -dy/2) and (dy > -dx/2)                  then getDirectionIndex := 6
   else if (dx < 0)     and (dy > dx/2)  and (dy < -dx/2) then getDirectionIndex := 7
   else if (dx < dy/2)  and (dy < dx/2)                   then getDirectionIndex := 8;
-  {getDirectionIndex:
-   8   1   2
-     \ | /
-   7 --0-- 3
-     / | \
-   6   5   4}
+
+  {
+    return:
+      8   1   2
+        \ | /
+      7 --0-- 3
+        / | \
+      6   5   4
+  }
 end;
 
 begin
@@ -117,21 +122,19 @@ begin
 
   mouse := 0;
   rune := '0';
-  bekapcs := true;
-
-  for i := 1 to 6 do
-    magic[i] := '';
-
+  directionReadyToBeRecorded := true;
   magicnum := 0;
   prevMagicnum := -1;
+  for i := 1 to MAX_MAGIC_NUM do
+    magic[i] := '';
 
   repeat
     getMouseCoordinates;
     if mouse = 2 then begin
-      if (vonal[2].x <> vonal[3].x) and (vonal[2].y <> vonal[3].y) then
-        rune := rune + directions[dxdy+1];
+      if (mouseCoordsBuffer[2].x <> mouseCoordsBuffer[3].x) and (mouseCoordsBuffer[2].y <> mouseCoordsBuffer[3].y) then
+        rune := rune + DIRECTIONS[dxdy + 1];
       
-      if (magicnum < 6) then
+      if (magicnum < MAX_MAGIC_NUM) then
         inc(magicnum);
 
       if      rune = '3'      then magic[magicnum] := 'AAM'
@@ -157,17 +160,17 @@ begin
       else dec(magicnum);
     end
     else if mouse = 3 then begin
-      if (vonal[2].x = vonal[3].x) and (vonal[2].y = vonal[3].y)
-      and (vonal[1].x <> vonal[3].x) and (vonal[1].y <> vonal[3].y) then begin
-        if bekapcs then begin
-          if (rune[length(rune)] <> directions[dxdy + 1]) then
-            rune := rune + directions[dxdy + 1];
-          bekapcs := false;
-          vonal[1].x := vonal[2].x;
-          vonal[1].y := vonal[2].y;
+      if (mouseCoordsBuffer[2].x = mouseCoordsBuffer[3].x) and (mouseCoordsBuffer[2].y = mouseCoordsBuffer[3].y)
+      and (mouseCoordsBuffer[1].x <> mouseCoordsBuffer[3].x) and (mouseCoordsBuffer[1].y <> mouseCoordsBuffer[3].y) then begin
+        if directionReadyToBeRecorded then begin
+          if (rune[length(rune)] <> DIRECTIONS[dxdy + 1]) then
+            rune := rune + DIRECTIONS[dxdy + 1];
+          directionReadyToBeRecorded := false;
+          mouseCoordsBuffer[1].x := mouseCoordsBuffer[2].x;
+          mouseCoordsBuffer[1].y := mouseCoordsBuffer[2].y;
         end;
       end
-      else bekapcs := true;
+      else directionReadyToBeRecorded := true;
     end
     else if mouse = 0 then rune := '';
 
@@ -179,7 +182,7 @@ begin
     end;
 
     prevMagicnum = magicnum;
-
   until keypressed;
+
   hideMouseCursor; 
 end.
